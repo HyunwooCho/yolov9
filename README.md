@@ -104,21 +104,70 @@ AutoDL docker environment: https://github.com/WongKinYiu/yolov9/issues/112#issue
 Docker environment (recommended)
 <details><summary> <b>Expand</b> </summary>
 
+### Install docker & nvidia docker
 ``` shell
-# create the docker container, you can change the share memory size if you have more.
-nvidia-docker run --name yolov9 -it -v your_coco_path/:/coco/ -v your_code_path/:/yolov9 --shm-size=64g nvcr.io/nvidia/pytorch:21.11-py3
+# uninstall old version docker
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
 
+# setup docker's apt repository
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+# install docker
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# setup nvidia-docker-toolkit's apt repository
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+sudo apt-get update
+
+# install nvidia-docker-toolkit
+sudo apt-get install -y nvidia-container-toolkit
+```
+
+### Run docker container
+```
+# create the docker container, you can change the share memory size if you have more.
+docker rm yolov9
+docker run --name=yolov9 --gpus=all --shm-size=64g -it -v /Data/coco:/datasets/coco -v /Data/coco128:/datasets/coco128 -v ./:/yolov9 nvcr.io/nvidia/pytorch:23.05-py3
+```
+
+or just run script
+```
+cd /yolov9
+sh docker_run.sh
+```
+
+### Install required packages in the container
+```
 # apt install required packages
 apt update
 apt install -y zip htop screen libgl1-mesa-glx
 
 # pip install required packages
+apt update
+apt upgrade -y
+apt install -y zip htop screen libgl1-mesa-glx
+
+python -m pip install --upgrade pip
 pip install seaborn thop
-
-# go to code folder
-cd /yolov9
+pip install pillow==9.5.0
 ```
-
+or just run this script
+```
+cd /yolov9
+sh setup_env.sh
+```
 </details>
 
 
