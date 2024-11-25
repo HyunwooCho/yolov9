@@ -136,20 +136,20 @@ sudo apt-get install -y nvidia-container-toolkit
 ```
 
 ### Run docker container
-```
+```shell
 # create the docker container, you can change the share memory size if you have more.
 docker rm yolov9
 docker run --name=yolov9 --gpus=all --shm-size=64g -it -v /Data/coco:/datasets/coco -v /Data/coco128:/datasets/coco128 -v ./:/yolov9 nvcr.io/nvidia/pytorch:23.05-py3
 ```
 
 or just run script
-```
+```shell
 cd /yolov9
 sh docker_run.sh
 ```
 
 ### Install required packages in the container
-```
+```shell
 # apt install required packages
 apt update
 apt install -y zip htop screen libgl1-mesa-glx
@@ -164,7 +164,7 @@ pip install seaborn thop
 pip install pillow==9.5.0
 ```
 or just run this script
-```
+```shell
 cd /yolov9
 sh setup_env.sh
 ```
